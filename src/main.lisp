@@ -5,9 +5,9 @@
 ; This is the reset vector, the first instruction executed by the cpu at boot
 (jmp main)
 
-(include "print.lisp")
-(include "macros.lisp")
-(include "ivt.lisp")
+(include "../src/print.lisp")
+(include "../src/macros.lisp")
+(include "../src/ivt.lisp")
 
 (label print_unknown)
   (display unknown)
@@ -31,47 +31,47 @@
 
   (display platform_str) ; print "Platform: "
 
-  (in #A 3) ; Read the platform from io port 3
-  (cmp #A 1) ; If platform is 1, then we're in an emulator, else, we're in a real machine
+  (in #r0 3) ; Read the platform from io port 3
+  (cmp #r0 1) ; If platform is 1, then we're in an emulator, else, we're in a real machine
   (jne print_unknown) ; Jump to unknown if platform is not 1 (for now)
 
    ; if vm == 1
   (display vm_str) ; print "caar-vm (emulator)"
   (display cpu_str) ; Print "CPU: "
 
-  (in #A 2) ; Get cpu from io port 2
-  (cmp #A 1) ; if cpu == 1, continue
+  (in #r0 2) ; Get cpu from io port 2
+  (cmp #r0 1) ; if cpu == 1, continue
   (jne print_unknown) ; if cpu != 1, print "unknown" and halt
 
   ; else, print "caar1" and continue
   (display cpu1)
   (display disk_msg)
 
-  (in #B 1) ; Read bus address
-  (ldr #A #B) ; Get number of devices
+  (in #r1 1) ; Read bus address
+  (ldr #r0 #r1) ; Get number of devices
 
-  (cmp #A 0)
+  (cmp #r0 0)
   (je print_no_devices)
 
-  (add #B 4) ; Get devices[0].type
+  (add #r1 4) ; Get devices[0].type
 
   (call find_disk)
 
-  (push #B) ; We do this to restore the state of #B
+  (push #r1) ; We do this to restore the state of #B
 
   (display disk_found)
 
-  (pop #B)
+  (pop #r1)
 
-  (add #B 4) ; Get disk.addr
-  (ldw #D #B) ; Load it into D
-  (stw #D disk_command)  ; Write to disk address
+  (add #r1 4) ; Get disk.addr
+  (ldw #r3 #r1) ; Load it into r3
+  (stw #r3 disk_command)  ; Write to disk address
 
   (display bootsector_loaded)
 
-  (xor #C #C)
-  (xor #A #A)
-  (xor #B #B)
+  (xor #r2 #r2)
+  (xor #r0 #r0)
+  (xor #r1 #r1)
 
   (livt ivt)
 
@@ -80,16 +80,16 @@
   (loop) ; loop forever
 
 ; Parameters:
-; A -> device count
-; B -> bus address
+; r0 -> device count
+; r1 -> bus address
 (label find_disk)
-  (cmp #C #A) ; if i == device_count
+  (cmp #r2 #r0) ; if i == device_count
   (je print_no_disk) ; stop
-  (add #C 1) ; i++
-  (ldr #D #B) ; D = *B
-  (cmp #D 1) ; if D == 1, we found a disk
+  (add #r2 1) ; i++
+  (ldr #r3 #r1) ; r3 = *r1
+  (cmp #r3 1) ; if r3 == 1, we found a disk
   (je disk_end)
-  (add #B 8) ; B += 8
+  (add #r1 8) ; r1 += 8
   (jmp find_disk)
 
 (label disk_end)

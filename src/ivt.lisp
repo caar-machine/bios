@@ -1,4 +1,4 @@
-(include "macros.lisp")
+(include "../src/macros.lisp")
 
 (label fault)
     (display fault_msg)
