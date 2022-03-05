@@ -5,9 +5,9 @@
 ; This is the reset vector, the first instruction executed by the cpu at boot
 (jmp main)
 
-(include "../src/print.lisp")
-(include "../src/macros.lisp")
-(include "../src/ivt.lisp")
+(include "print.lisp")
+(include "macros.lisp")
+(include "ivt.lisp")
 
 (label print_unknown)
   (display unknown)
