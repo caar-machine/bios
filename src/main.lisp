@@ -24,7 +24,7 @@
 (label disk_command)
   (db 0) ; Read
   (db 1) ; One sector
-  (dw 0x2000) ; where to put the data
+  (dw 0x3000) ; where to put the data
 
 (label main)
   (display boot_msg) ; Print welcome message
@@ -75,7 +75,18 @@
 
   (livt ivt)
 
-  (jmp 0x2000)
+  (ldr #r0 0x31fe)
+  (ldr #r1 0x31ff)
+
+  (cmp #r0 0x55)
+  (jne disk_not_bootable)
+  (cmp #r1 0xAA)
+  (jne disk_not_bootable)
+
+  (jmp 0x3000)
+
+  (label disk_not_bootable)
+    (display no_bootable_disk)
 
   (loop) ; loop forever
 
@@ -125,6 +136,8 @@
 (label disk_msg)
   (db "Searching for disks..." #\nl 0)
 
+(label no_bootable_disk)
+  (db "No bootable disk found" #\nl 0)
 (label no_devices)
   (db "No device attached to the machine. Halting" #\nl 0)
 
