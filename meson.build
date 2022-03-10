@@ -1,6 +1,6 @@
 project('caar-bios')
 
-as = find_program('caar-as')
+as = dependency('caar-as')
 
 input_files = [
 'src/main.lisp'
