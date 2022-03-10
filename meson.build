@@ -1,5 +1,3 @@
-project('caar-bios')
-
 as = dependency('caar-as')
 
 input_files = [
