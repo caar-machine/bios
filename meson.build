@@ -1,4 +1,10 @@
-as = dependency('caar-as')
+project('caar-bios')
+
+as = 'caar-as'
+
+if meson.is_subproject()
+  as = '../../bin/caar-as'
+endif
 
 input_files = [
 'src/main.lisp'
