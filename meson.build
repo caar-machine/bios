@@ -1,9 +1,11 @@
 project('caar-bios')
 
-as = 'caar-as'
+as = ''
 
 if meson.is_subproject()
-  as = '../../bin/caar-as'
+  as = subproject('as').get_variable('assembler_executable')
+else
+  as = find_program('caar-as')
 endif
 
 input_files = [
